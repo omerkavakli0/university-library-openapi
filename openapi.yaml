@@ -1,0 +1,471 @@
+openapi: 3.0.4
+info:
+  title: University Library API
+  description: |-
+    An online library system for the university, provided as a REST API.  Includes CRUD endpoints for books, students, and loan transactions.
+  contact:
+    email: kavakliomer34@gmail.com
+  version: 1.0.1
+servers:
+  - url: http://localhost:3000
+    description: Local server
+  - url: https://api.university-library.com
+    description: Production server
+security:
+  - ApiKeyAuth: []
+tags:
+  - name: books
+    description: Operations about books
+  - name: students
+    description: Operations about students
+  - name: loans
+    description: Operations about loans
+paths:
+ #---- books ----
+  /books:
+    get:
+      tags: [books]
+      summary: Get all books
+      description: Lists all books with pagination.
+      operationId: getAllBooks
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: size
+          in: query
+          description: Number of records per page.
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Book list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/Book'
+              example:
+                - id: "b1e2d3f4-5678-1234-9abc-1234567890ab"
+                  title: "Dune"
+                  author: "Frank Herbert"
+                  isbn: "978-3-16-148410-0"
+                  publisher: "İthaki Yayınları"
+                  pageCount: 712
+                  stock: 3
+        '400':
+          description: Invalid parameter
+        '500':
+          description: Server error
+    post:
+      tags: [books]
+      summary: Add a book
+      description: Adds a new book.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+      responses:
+        '201':
+          description: Added a book
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '400':
+          description: Invalid data
+        '500':
+          description: Server error
+ #---- books with ID----
+  /books/{id}:
+    get:
+      tags: [books]
+      summary: Get a single book
+      description: Retrieves book information by ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Book UUID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Book found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: Book not found
+        '400':
+          description: Invalid UUID
+    put:
+      tags: [books]
+      summary: Update a book
+      description: Updates book information.
+      parameters: 
+        - name: id
+          in: path
+          required: true
+          description: Book UUID
+          schema:
+            type: string 
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+      responses:
+        '200':
+          description: Updated book
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: Book not found
+        '400':
+          description: Invalid data
+    delete:
+      tags: [books]
+      summary: Delete a book
+      description: Deletes a book.
+      parameters: 
+        - name: id
+          in: path
+          required: true
+          description: Book UUID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Book deleted
+        '404':
+          description: Book not found
+        '400':
+          description: Invalid UUID
+ #---- students ----
+  /students:
+    get:
+      tags: [students]
+      summary: Get all students
+      description: Lists all students.
+      responses:
+        '200':
+          description: Student list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Student'
+        '500':
+          description: Server error
+    post:
+      tags: [students]
+      summary: Add student
+      description: Adds new student.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Student'
+      responses:
+        '201':
+          description: Added a student
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        '400':
+          description: Invalid information
+        '500':
+          description: Server error
+ # --- students with id ---
+  /students/{id}:
+    get:
+      tags: [students]
+      summary: Get single student
+      description: Retrieves student information by ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Student UUID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Student found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        '404':
+          description: Student not found
+        '400':
+          description: Invalid ID
+    put:
+      tags: [students]
+      summary: Update student
+      description: Updates student information.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Student UUID
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Student'
+      responses:
+        '200':
+          description: Updated student
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        '404':
+          description: Student not found
+        '400':
+          description: Invalid data
+    delete:
+      tags: [students]
+      summary: Delete student
+      description: Deletes a student.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Student UUID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Deleted student
+        '404':
+          description: Student not found
+        '400':
+          description: Invalid ID
+ # --- loans ---
+  /loans:
+    get:
+      tags: [loans]
+      summary: Get all loans
+      description: Lists all loan transactions.
+      responses:
+        '200':
+          description: Loan list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Loan'
+        '500':
+          description: Server error
+    post:
+      tags: [loans]
+      summary: Borrow a book
+      description: Initiates a new loan transaction.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Loan'
+      responses:
+        '201':
+          description: Loan transaction started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Loan'
+        '400':
+          description: Invalid data
+        '500':
+          description: Server error
+ # --- loans with id ---
+  /loans/{id}:
+    get:
+      tags: [loans]
+      summary: Get a single loan
+      description: Retrieves a loan transaction by ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Loan UUID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Loan found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Loan'
+        '404':
+          description: Loan not found
+        '400':
+          description: Invalid ID
+    patch:
+      tags: [loans]
+      summary: Return a book
+      description: Updates the loan transaction.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Loan UUID
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [returned, late]
+                returnDate:
+                  type: string
+                  format: date
+      responses:
+        '200':
+          description: Book returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Loan'
+        '404':
+          description: Loan not found
+        '400':
+          description: Invalid data
+components:
+  schemas:
+    Book:
+      type: object
+      required:
+        - id
+        - title
+        - author
+        - isbn
+        - publisher
+        - pageCount
+        - stock
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "b1e2d3f4-5678-1234-9abc-1234567890ab"
+        title:
+          type: string
+          example: "Dune"
+        author:
+          type: string
+          example: "Frank Herbert"
+        isbn:
+          type: string
+          pattern: "^(97(8|9))?\\d{9}(\\d|X)$"
+          example: "978-3-16-148410-0"
+        publisher:
+          type: string
+          example: "Ithaki Yayınları"
+        pageCount:
+          type: integer
+          example: 712
+        stock:
+          type: integer
+          example: 3
+    Student:
+      type: object
+      required:
+        - id
+        - name
+        - studentNumber
+        - email
+        - isActive
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "a1b2c3d4-5678-1234-9abc-1234567890ab"
+        name:
+          type: string
+          example: "Omer Kavakli"
+        studentNumber:
+          type: string
+          example: "123456789"
+        email:
+          type: string
+          format: email
+          example: "omerkavakli@example.edu"
+        isActive:
+          type: boolean
+          example: true
+    Loan:
+      type: object
+      required:
+        - id
+        - studentId
+        - bookId
+        - loanDate
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "l1m2n3o4-5678-1234-9abc-1234567890ab"
+        studentId:
+          type: string
+          format: uuid
+          example: "a1b2c3d4-5678-1234-9abc-1234567890ab"
+        bookId:
+          type: string
+          format: uuid
+          example: "b1e2d3f4-5678-1234-9abc-1234567890ab"
+        loanDate:
+          type: string
+          format: date
+          example: "2025-05-01"
+        returnDate:
+          type: string
+          format: date
+          nullable: true
+          example: "2025-05-30"
+        status:
+          type: string
+          enum: [ongoing, returned, late]
+          example: "ongoing"
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
