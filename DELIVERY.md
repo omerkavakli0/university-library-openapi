@@ -7,7 +7,7 @@
 ---
 
 ### 🔗 GitHub Repo Linki
-[GitHub projenizin linkini buraya yazınız]
+https://github.com/omerkavakli0/university-library-openapi
 
 ---
 
